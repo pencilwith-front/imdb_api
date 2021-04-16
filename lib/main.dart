@@ -53,120 +53,173 @@ class _MyAppState extends State<MyApp> {
       body: Column(
         //crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(),
-          FutureBuilder(
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return SizedBox(
-                    height: MediaQuery.of(context).size.height - 200,
-                    width: 350.0,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        CarouselSlider(
-                          options: CarouselOptions(
-                              aspectRatio: 0.8,
-                              enlargeCenterPage: true,
-                              enableInfiniteScroll: true,
-                              initialPage: 0,
-                              autoPlay: true,
-                              onPageChanged: (index, realIndex) {
-                                setState(() {
-                                  selectedIndex = index;
-                                });
-                              }),
-                          items: List.generate(
-                              snapshot.data.results.length,
-                              (index) => Container(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(30),
-                                      child: Image.network(
-                                        postURL +
-                                            snapshot
-                                                .data.results[index].posterPath,
-                                        fit: BoxFit.cover,
+          Row(), //센터로 감싸기 싫어서.
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: FutureBuilder(
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return SizedBox(
+                      height: MediaQuery.of(context).size.height - 100,
+                      width: 350.0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          CarouselSlider(
+                            options: CarouselOptions(
+                                aspectRatio: 12 / 12,
+                                enlargeCenterPage: true, //양옆의 이미지 붙는거.
+                                enableInfiniteScroll: true,
+                                initialPage: 0,
+                                autoPlay: false,
+                                viewportFraction: 0.7,
+                                onPageChanged: (index, realIndex) {
+                                  setState(() {
+                                    selectedIndex = index;
+                                  });
+                                }),
+                            items: List.generate(
+                                snapshot.data.results.length,
+                                (index) => Container(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(30),
+                                        child: Image.network(
+                                          postURL +
+                                              snapshot.data.results[index]
+                                                  .posterPath,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
-                                    ),
-                                  )),
-                        ),
-                        SizedBox(
-                          height: 50,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 40.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Row(),
-                              RichText(
-                                  text: TextSpan(
-                                      text: 'TITLE:',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold),
-                                      children: [
-                                    TextSpan(
-                                        text:
-                                            '${snapshot.data.results[selectedIndex].title}',
-                                        style: TextStyle(color: Colors.black54))
-                                  ])),
-                              RichText(
-                                  text: TextSpan(
-                                      text: 'releaseDate:',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold),
-                                      children: [
-                                    TextSpan(
-                                        text:
-                                            '${snapshot.data.results[selectedIndex].releaseDate}',
-                                        style: TextStyle(color: Colors.black54))
-                                  ])),
-                              RichText(
-                                  text: TextSpan(
-                                      text: 'voteAverage:',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold),
-                                      children: [
-                                    TextSpan(
-                                        text:
-                                            '${snapshot.data.results[selectedIndex].voteAverage}/10',
-                                        style: TextStyle(color: Colors.black54))
-                                  ])),
-                              RichText(
-                                  text: TextSpan(
-                                      text: 'popularity:',
-                                      style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.bold),
-                                      children: [
-                                    TextSpan(
-                                        text:
-                                            '${snapshot.data.results[selectedIndex].popularity}',
-                                        style: TextStyle(color: Colors.black54))
-                                  ])),
-                            ],
+                                    )),
                           ),
-                        )
-                      ],
-                    ));
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 100.0),
-                  child: SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.black,
-                      strokeWidth: 20,
+                          SizedBox(
+                            height: 50,
+                          ),
+                          Container(
+                            width: double.infinity,
+                            alignment: Alignment.centerLeft,
+                            child: DataTable(
+                                headingTextStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                                headingRowHeight: 30,
+                                dataRowHeight: 30,
+                                columnSpacing: 50,
+                                headingRowColor:
+                                    MaterialStateProperty.all(Colors.grey[200]),
+                                columns: [
+                                  DataColumn(
+                                    label: Text(
+                                      '구분',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  DataColumn(
+                                    label: Text(
+                                      '내용',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                                rows: [
+                                  DataRow(cells: [
+                                    DataCell(Text('제   목')),
+                                    DataCell(Container(
+                                      width: 250,
+                                      child: Text(
+                                        '${snapshot.data.results[selectedIndex].title}',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    )),
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('개봉일')),
+                                    DataCell(Text(
+                                        '${snapshot.data.results[selectedIndex].releaseDate}')),
+                                  ]),
+                                  DataRow(cells: [
+                                    DataCell(Text('평   점')),
+                                    DataCell(Text(
+                                        '${snapshot.data.results[selectedIndex].voteAverage}/10')),
+                                  ]),
+                                ]),
+                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(left: 40.0),
+                          //   child: Column(
+                          //     crossAxisAlignment: CrossAxisAlignment.start,
+                          //     mainAxisSize: MainAxisSize.max,
+                          //     children: [
+                          //       Row(),
+                          //       RichText(
+                          //           text: TextSpan(
+                          //               text: 'TITLE:',
+                          //               style: TextStyle(
+                          //                   color: Colors.grey,
+                          //                   fontWeight: FontWeight.bold),
+                          //               children: [
+                          //             TextSpan(
+                          //                 text:
+                          //                     '${snapshot.data.results[selectedIndex].title}',
+                          //                 style: TextStyle(color: Colors.black54))
+                          //           ])),
+                          //       RichText(
+                          //           text: TextSpan(
+                          //               text: 'releaseDate:',
+                          //               style: TextStyle(
+                          //                   color: Colors.grey,
+                          //                   fontWeight: FontWeight.bold),
+                          //               children: [
+                          //             TextSpan(
+                          //                 text:
+                          //                     '${snapshot.data.results[selectedIndex].releaseDate}',
+                          //                 style: TextStyle(color: Colors.black54))
+                          //           ])),
+                          //       RichText(
+                          //           text: TextSpan(
+                          //               text: 'voteAverage:',
+                          //               style: TextStyle(
+                          //                   color: Colors.grey,
+                          //                   fontWeight: FontWeight.bold),
+                          //               children: [
+                          //             TextSpan(
+                          //                 text:
+                          //                     '${snapshot.data.results[selectedIndex].voteAverage}/10',
+                          //                 style: TextStyle(color: Colors.black54))
+                          //           ])),
+                          //       RichText(
+                          //           text: TextSpan(
+                          //               text: 'popularity:',
+                          //               style: TextStyle(
+                          //                   color: Colors.grey,
+                          //                   fontWeight: FontWeight.bold),
+                          //               children: [
+                          //             TextSpan(
+                          //                 text:
+                          //                     '${snapshot.data.results[selectedIndex].popularity}',
+                          //                 style: TextStyle(color: Colors.black54))
+                          //           ])),
+                          //     ],
+                          //   ),
+                          // )
+                        ],
+                      ));
+                } else {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 100.0),
+                    child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: CircularProgressIndicator(
+                        backgroundColor: Colors.black,
+                        strokeWidth: 20,
+                      ),
                     ),
-                  ),
-                );
-              }
-            },
-            future: moviesList,
+                  );
+                }
+              },
+              future: moviesList,
+            ),
           ),
         ],
       ),
