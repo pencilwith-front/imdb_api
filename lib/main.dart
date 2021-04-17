@@ -2,10 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
+import 'package:imdb_api/models/movie2.dart';
 import 'dart:convert' as convert;
-import 'package:imdb_api/models/movies.dart';
+//import 'package:imdb_api/models/movies.dart';
 
-void main() => runApp(MaterialApp(home: MyApp()));
+void main() => runApp(MaterialApp(
+      home: MyApp(),
+      debugShowCheckedModeBanner: false,
+    ));
 
 class MyApp extends StatefulWidget {
   @override
@@ -14,15 +18,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String api = 'c37834aa9bf95cc6bc23487a57bc4bc7';
-  String requestURL = 'https://api.themoviedb.org/3/movie/top_rated?api_key=';
+  //String requestURL = 'https://api.themoviedb.org/3/movie/top_rated?api_key=';
+  String requestURL =
+      'https://api.themoviedb.org/3/movie/now_playing?language=ko&page=1%C2%AEion=KR&api_key=';
+
   String postURL = 'https://image.tmdb.org/t/p/original/';
-  Future<Movies> moviesList;
+  //Future<Movies> moviesList;
+  Future<Movies2> moviesList;
   int selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
     moviesList = _getMovieList();
+    moviesList.then((value) => print('aaaa'));
   }
 
   @override
@@ -67,12 +76,12 @@ class _MyAppState extends State<MyApp> {
                         children: [
                           CarouselSlider(
                             options: CarouselOptions(
-                                aspectRatio: 12 / 12,
+                                aspectRatio: 14 / 12,
                                 enlargeCenterPage: true, //양옆의 이미지 붙는거.
                                 enableInfiniteScroll: true,
                                 initialPage: 0,
                                 autoPlay: false,
-                                viewportFraction: 0.7,
+                                viewportFraction: 0.62,
                                 onPageChanged: (index, realIndex) {
                                   setState(() {
                                     selectedIndex = index;
@@ -202,6 +211,26 @@ class _MyAppState extends State<MyApp> {
                           //     ],
                           //   ),
                           // )
+                          Container(
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 0.5, color: Colors.grey),
+                                borderRadius: BorderRadius.circular(15)),
+                            height: 100,
+                            width: double.infinity, //데이터 없는애들때문에;
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: snapshot.data.results[selectedIndex]
+                                          .overview !=
+                                      ''
+                                  ? Text(
+                                      '${snapshot.data.results[selectedIndex].overview}',
+                                      maxLines: 4, //아하.
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  : Text('줄거리 준비중 입니다.'),
+                            ),
+                          )
                         ],
                       ));
                 } else {
@@ -226,13 +255,11 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _getCarousel(Movies snapshot) {}
-
-  Future<Movies> _getMovieList() async {
+  Future<Movies2> _getMovieList() async {
     var response = await http.get(requestURL + api);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
-      return Movies.fromJson(jsonResponse);
+      return Movies2.fromJson(jsonResponse);
     } else {
       throw Exception('Failed to load post');
     }
